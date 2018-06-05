@@ -87,13 +87,13 @@ static void child(pid_t spid, int ch)
 	/**
 	 * MsgSend - wysyłanie wiadomości do kanału komunikacji
 	 */
-	if (MsgSend(conn, MSGNAME, sizeof(MSGNAME), 0, 0) == -1)
+	if (MsgSend(conn, MSGNAME, strlen(MSGNAME), 0, 0) == -1)
 	{
 		std::cerr << "CHILD: MsgSend fail" << std::endl;
 		return;
 	}
 
-	std::cout << "CHILD: Modify:" << std::endl;
+	std::cout << "CHILD: Sorted: " << std::endl;
 	for (int i = 0; i < VECLEN; i++)
 	{
 		std::cout<< ((int*) (memory))[i] << ", ";
@@ -138,20 +138,20 @@ static void child(pid_t spid, int ch)
 
 static void parent(pid_t cpid, int ch)
 {
-	char msgname[sizeof(MSGNAME)];
+	char msgname[strlen(MSGNAME)];
 
 	/**
 	 * MsgReceive - czeka na wiadomość
 	 */
-	int recv = MsgReceive(ch, msgname, sizeof(MSGNAME), 0);
+	int recv = MsgReceive(ch, msgname, strlen(MSGNAME), 0);
 
 	if (recv == -1)
 	{
 		std::cerr << "PARENT: MsgReceive fail" << std::endl;
 		return;
 	}
-
-	int shm = shm_open(MSGNAME, O_RDWR,
+	std::cout << "PARENT: msgName: " << msgname << std::endl;
+	int shm = shm_open(msgname, O_RDWR,
 			umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
 	if (shm == -1)
 	{
@@ -165,6 +165,8 @@ static void parent(pid_t cpid, int ch)
 		std::cerr << "PARENT: nmap fail" << std::endl;
 		return;
 	}
+
+	std::cout << "PARENT: Sorting" << std::endl;
 
 	int * tab = (int*)memory;
 
@@ -225,7 +227,9 @@ int main(int argc, char * argv[])
 	if (pid == 0)
 	{
 		child(getppid(), ch);
-	} else {
+	}
+	else
+	{
 		parent(pid, ch);
 	}
 

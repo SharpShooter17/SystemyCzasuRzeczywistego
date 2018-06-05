@@ -18,12 +18,16 @@ int main(int argc, char * argv[]) {
 
 	if(signalNum < SIGRTMIN || signalNum > SIGRTMAX)
 	{
-		errx(EXIT_FAILURE, "[SIG] must be from %d to %d", SIGRTMIN, SIGRTMAX);
+		std::cerr << "[SIG] must be from " << SIGRTMIN << " to: " << SIGRTMAX << std::endl;
+		return -1;
 	}
 
+	/**
+	 * Skolejkowanie sygnału, który ma być przekazany do procesu.
+	 */
 	if(sigqueue(pid, signalNum, sigval) == -1)
 	{
-		err(EXIT_FAILURE, 0);
+		return -1;
 	}
 
 	return EXIT_SUCCESS;

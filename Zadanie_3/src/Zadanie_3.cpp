@@ -22,9 +22,12 @@
  */
 #include <sys/dispatch.h>
 
-static resmgr_connect_funcs_t    connect_funcs;
-static resmgr_io_funcs_t         io_funcs;
-static iofunc_attr_t             attr;
+static resmgr_connect_funcs_t connect_funcs;
+static resmgr_io_funcs_t io_funcs;
+/**
+ * Atrybuty dla urządzenia związanego z menadżerem zasobów
+ */
+static iofunc_attr_t attr;
 
 #define BUFSIZE 128
 static char buffer[BUFSIZE];
@@ -41,11 +44,18 @@ int io_read (resmgr_context_t *ctp, io_read_t *msg, RESMGR_OCB_T *ocb)
     attr.nbytes = strlen(buffer) + 1;
 
     int status;
+    /**
+     * Weryfikacja dostępu klienta do zasobów
+     */
     if ((status = iofunc_read_verify (ctp, msg, ocb, NULL)) != EOK)
+    {
         return (status);
+    }
 
     if ((msg->i.xtype & _IO_XTYPE_MASK) != _IO_XTYPE_NONE)
-        return (ENOSYS);
+    {
+    	return (ENOSYS);
+    }
 
     /*
      *  On all reads (first and subsequent), calculate
@@ -147,26 +157,35 @@ int io_write (resmgr_context_t *ctp, io_write_t *msg, RESMGR_OCB_T *ocb)
 
 int main(int argc, char* argv[])
 {
-    /* initialize dispatch interface */
+    /* *
+     * dispatch_create - alokuje i inicjalizuje uchwyt.
+     */
     dispatch_t * dpp = dispatch_create();
     if(dpp == NULL)
     {
-    	std::cerr << "Allocate dipatch fail" << std::endl;
+    	std::cerr << "Allocate dispatch fail" << std::endl;
         return -1;
     }
 
-    /* initialize resource manager attributes */
+    /**
+     * Atrybuty dla menadżera zasobów
+     */
     resmgr_attr_t resmgr_attr;
     memset(&resmgr_attr, 0, sizeof resmgr_attr);
-    resmgr_attr.nparts_max = 1;
-    resmgr_attr.msg_max_size = 2048;
+    resmgr_attr.nparts_max = 1;		// ilosc dostepnych struktur
+    resmgr_attr.msg_max_size = 2048; //buffor
 
-    /* initialize functions for handling messages */
+    /**
+     * iofunc_func_init - Inicjalizuje dom connect_funcs
+     */
     iofunc_func_init(_RESMGR_CONNECT_NFUNCS, &connect_funcs, _RESMGR_IO_NFUNCS, &io_funcs);
     io_funcs.read = io_read;
     io_funcs.write = io_write;
 
-    /* initialize attribute structure used by the device */
+    /**
+     * Inicjalizuje atrybuty struktury związanej z urządzeniem
+     * S_IFNAM - specjalna nazwa pliku
+     */
     iofunc_attr_init(&attr, S_IFNAM | 0666, 0, 0);
 
     /* attach our device name */
@@ -198,7 +217,9 @@ int main(int argc, char* argv[])
     pool_attr.increment = 1;
     pool_attr.maximum = 50;
 
-    /* allocate a thread pool handle */
+    /**
+     * thread_pool_create - tworzy uchwyt
+     */
     thread_pool_t* tpp = thread_pool_create(&pool_attr, POOL_FLAG_EXIT_SELF);
     if(tpp == NULL)
     {

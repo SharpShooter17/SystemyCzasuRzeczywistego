@@ -83,5 +83,15 @@ Najłatwiej zacząć pisanie programu od rozwidlenia, następnie dodać mechaniz
 * shm_unlink() – usunięcie obiektu pamięci dzielonej
 * ftruncate() – ustalenie wielkości obiektu pamięci dzielonej
 
-
-
+== Zadanie 3
+Napsiz menadzer zasobów, czyli proces który udostępnia pewien zasób(zwykle sprzetowy).
+Rejestruje plik i ten zasób w postaci pliku jest potem dostepny. 
+Czytaj i pisz do tego zasobu(plik). +
+Do zaliczenia wystarczy jedno wątkowy menadżer! Menadżer może być jedno plikowy.
+Czyli rejestruje pojedyncze pliki w menadżerze procesów.
+Rola menadżera jest taka, że jeśli czytamy z pliku to menadżer jest włączony,
+menadżer czyta z urządzenia i pcha do buforu (nie jest fizycznie do pliku zapisywany).
+Wybierz zasób, urzadzenie które bedziesz obsługiwać.
+Moze wybrac co chcesz. + 
+Strzecha podsuwa: ZEGAR CZAS RZECZYWISTEGO (ten co odlicza czas w komputerze) + 
+Szukaj pomoc w *help* _->_ *writing resource manageer* _->_ to co jest wazne to *lots of examples*
